@@ -1,0 +1,20 @@
+# Secrets — the Supabase config lives in EOW_System/.config/, outside this repo.
+# These rules defend against a stray copy landing in the tree.
+.config/
+*.env
+supabase.json
+**/supabase.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*~
+
+# Claude Code personal/local settings
+.claude/settings.local.json
