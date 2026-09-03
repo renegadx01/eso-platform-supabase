@@ -48,9 +48,16 @@ directly (no org network allowlist, unlike the Cowork sandbox). Quick check usin
 the plugin's connector:
 
 ```bash
-python3 -c "import sys; sys.path.insert(0,'../../github_upload/eso-claude-plugins/eso-eow-reporting/scripts'); import eow_db; print(eow_db.test_connection('../..'))"
-# prints the people row count on success (base = EOW_System, two levels up)
+python3 scripts/check_connection.py
+# prints the people row count on success; cwd-independent (resolves from __file__)
 ```
+
+Every path in this repo is relative, and none of them are relative to your
+working directory — they resolve from the file's own location. Don't reintroduce
+`cd`-dependent `../..` hops in docs or scripts: this repo gets cloned by people
+who don't have the surrounding `EOW_System` folder, and a path that silently
+resolves to the wrong place is worse than one that fails loudly. See
+"Expected layout" in README.md.
 
 ## Current schema (live in Supabase)
 

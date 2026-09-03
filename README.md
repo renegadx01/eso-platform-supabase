@@ -11,11 +11,36 @@ See `CLAUDE.md` for the full brief and `eso-claude-plugins/PLATFORM_MODEL.md`
 
 1. Install Claude Code: `npm install -g @anthropic-ai/claude-code`
 2. `cd` here and run `claude`.
-3. Credentials live in `EOW_System/.config/supabase.json` (two levels up, outside
-   this repo, gitignored). Confirm connectivity:
+3. Confirm connectivity. Runs from any working directory — it resolves every
+   path from its own location and tells you exactly what's missing if the
+   layout below isn't in place:
    ```bash
-   python3 -c "import sys; sys.path.insert(0,'../../github_upload/eso-claude-plugins/eso-eow-reporting/scripts'); import eow_db; print(eow_db.test_connection('../..'))"
+   python3 scripts/check_connection.py
    ```
+   On success it prints the `people` row count.
+
+## Expected layout — read this before cloning
+
+**This repo is not self-contained, by design.** Neither the database
+credentials nor the connector live here: credentials must never be committed,
+and the connector belongs to the `eso-eow-reporting` plugin. Both sit in the
+shared `EOW_System` folder, so the repo only works when checked out in its
+expected position inside it:
+
+```
+EOW_System/
+  .config/supabase.json                 <- credentials (gitignored, never committed)
+  github_upload/eso-claude-plugins/
+    eso-eow-reporting/scripts/          <- eow_db.py connector
+  platform/
+    eso-platform-supabase/              <- THIS REPO
+```
+
+Cloned on its own, the SQL and docs are still perfectly readable — the
+migrations are plain Postgres and apply through the Supabase SQL editor without
+any of this. Only `scripts/check_connection.py` and
+`ingestion/monograph_import.py` need the surrounding folder, and both report
+clearly rather than failing obscurely when it's absent.
 
 ## Migrations
 

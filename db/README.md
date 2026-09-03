@@ -36,7 +36,7 @@ Schema drift check — introspects the live database over PostgREST and compares
 against `001`. Prints live relations and their columns; no data is read.
 
 ```bash
-python3 -c "import sys; sys.path.insert(0,'../../github_upload/eso-claude-plugins/eso-eow-reporting/scripts'); import eow_db; print(eow_db.test_connection('../..'))"
+python3 scripts/check_connection.py   # runs from any directory
 ```
 
 Known coverage gaps in `001` (PostgREST cannot expose them): exact index

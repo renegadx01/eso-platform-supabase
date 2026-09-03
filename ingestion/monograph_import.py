@@ -44,8 +44,10 @@ from datetime import date, timedelta
 
 # ── Path setup ────────────────────────────────────────────────────────────────
 
-# ingestion/ is two levels below EOW_System/:
+# ingestion/ is THREE levels below EOW_System/ — hence the three ".." hops below:
 #   ingestion/ -> eso-platform-supabase/ -> platform/ -> EOW_System/
+# Resolved from __file__, never from the working directory, so this works no
+# matter where the script is invoked from.
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _BASE = os.path.normpath(os.path.join(_HERE, "..", "..", ".."))
 
