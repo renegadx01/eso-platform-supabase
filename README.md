@@ -23,14 +23,22 @@ Live in `db/migrations/`, applied in numeric order via the Supabase SQL editor
 (or the Supabase CLI).
 
 - `001_base_schema.sql` — **applied** (it's a snapshot of what's already live,
-  captured 2026-08-03 via PostgREST introspection). The two views are an
-  unverified reconstruction; see the note at the top of the file.
+  captured 2026-08-03 via PostgREST introspection, re-verified 2026-09-03 with
+  zero drift). The two views are an unverified reconstruction; see the note at
+  the top of the file.
 - `002_platform_model_proposed.sql` — **proposed, not yet applied.** Additive
   model extension (teams, framework + RACI, pipeline, billed-vs-logged,
   reserved scenario dimension).
 - `003_drop_pace_bands.sql` — **proposed, not yet applied.** Relaxes
   `allocations.pace` per the pace-band elimination decision. May already be a
   no-op — 001's capture shows `pace` is nullable live.
+- `004_dedup_indexes.sql` — **proposed, not yet applied.** Functional UNIQUE
+  indexes on `actions` and `flags`, backing up the write path's soft dedup.
+- `005_financials_and_health.sql` — **proposed, not yet applied.** Adds
+  `financials` and per-project health tables for the financial KPI layer.
+
+As of 2026-09-03 the live database carries the `001` baseline only — none of
+002–005 have been applied. See `db/README.md` for detail and the drift check.
 
 Always confirm a safe restore point before applying anything.
 

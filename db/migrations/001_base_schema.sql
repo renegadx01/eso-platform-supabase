@@ -14,6 +14,15 @@
 --   pulled from the PostgREST OpenAPI descriptor (GET /rest/v1/ with
 --   Accept: application/openapi+json), read with the service_role key via
 --   eow_db.py, on 2026-08-03. This is what's actually live.
+--
+--   RE-VERIFIED 2026-09-03 by the same method: ZERO DRIFT. All 10 base tables
+--   (people, rates, projects, phases, milestones, milestone_slips, actions,
+--   flags, allocations, time_entries) and both views match this file exactly —
+--   same columns, types, NOT NULL, defaults, PK/FK. No columns added, removed,
+--   or retyped since capture. `allocations.pace` remains nullable (see the
+--   note above the allocations table). The only object found live but NOT in
+--   this file is the rls_auto_enable function — see the coverage gap below.
+--
 --   NOT captured by this method (PostgREST doesn't expose pg_catalog /
 --   information_schema over REST, and there's no direct psql connection
 --   configured for this project):
@@ -34,6 +43,20 @@
 --       the RLS block below with the output of:
 --         select tablename, policyname, cmd, qual, with_check from pg_policies
 --         where schemaname = 'public';
+--     * Functions. A function public.rls_auto_enable(...) IS live and exposed
+--       over PostgREST as /rpc/rls_auto_enable (found 2026-09-03; it was
+--       missed by the original 2026-08-03 capture, which only walked table
+--       definitions). Its name suggests a helper/event-trigger that enables
+--       RLS on newly created tables. PostgREST reports only that it accepts an
+--       untyped JSON object and returns 200 — not its argument names, return
+--       type, volatility, or body. It is therefore NOT reproduced below, so
+--       this file will not recreate it when bootstrapping a fresh database.
+--       To capture it, run in the Supabase SQL editor and paste the result in:
+--         select p.proname, pg_get_functiondef(p.oid)
+--         from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+--         where n.nspname = 'public';
+--       Check for an accompanying event trigger too:
+--         select evtname, evtevent, evtfoid::regproc from pg_event_trigger;
 --
 -- Conventions matched from 002/003:
 --   * uuid primary keys default gen_random_uuid() (milestones.id is TEXT).

@@ -2,10 +2,15 @@
 
 Project brief for Claude Code. Read first.
 
-**See also:** `EOW_System/PLATFORM_STATUS.md` (two levels up) — the living
-cross-repo status doc: what's actually live in Supabase right now, real
-backfill state, hidden schema constraints found the hard way, and open
-decisions pending. Read it alongside this file, not instead of it.
+**Status note (2026-09-03):** earlier versions of this file pointed to
+`EOW_System/PLATFORM_STATUS.md` as a living cross-repo status doc. **That file
+does not exist** — it was either never written or removed. Don't go looking for
+it. Live-state facts now live in two places instead:
+- `db/README.md` — migration status, the drift check, and `001`'s coverage gaps.
+- the header comment of `db/migrations/001_base_schema.sql` — capture method,
+  re-verification date, and the exact SQL to close each gap.
+
+If a cross-repo status doc gets written later, link it here and delete this note.
 
 ## What this project owns
 
@@ -74,9 +79,29 @@ gone. `eow_db_write.map_payload` already reflects this and its tests are green.
   pipeline, reserved scenario dimension). Apply only after Maggie + Pete sign off.
   Copied from the plugin repo; this project is now the home for DB migrations, so
   the plugin's `db/` copy can be retired later (ask Pete before deleting it).
-- `db/migrations/003_drop_pace_bands.sql` — implements the pace decision below.
-  Note: 001's capture shows `allocations.pace` is already nullable live, so
-  this may be a no-op — confirm before applying.
+- `db/migrations/003_drop_pace_bands.sql` — **PROPOSED, NOT APPLIED.**
+  Implements the pace decision below. Note: 001's capture shows
+  `allocations.pace` is already nullable live, so this may be a no-op —
+  confirm before applying.
+- `db/migrations/004_dedup_indexes.sql` — **PROPOSED, NOT APPLIED.** Functional
+  UNIQUE indexes on `actions` and `flags` (`md5(body)` to stay under btree's
+  size limit), backing up the soft-dedup pre-filter in
+  `eow_db_write.write_payload()`. Expression indexes, so they can't be
+  PostgREST `on_conflict` targets — the write path's soft-dedup + `id`
+  fallback remains correct. Additive, low-risk.
+- `db/migrations/005_financials_and_health.sql` — **PROPOSED, NOT APPLIED.**
+  Adds `financials` (one row per calendar month, QuickBooks P&L +
+  balance-sheet import target) and a per-project health table — Maggie's
+  "Y/N decisions" node from the Pontis/ĒSO diagram. Unlocks Net Multiplier,
+  Overhead Multiplier, Break-Even Rate, Profit-to-Earnings, Cash Flow, Aged AR.
+  Additive; no existing table or column is touched.
+
+**Live migration state (verified 2026-09-03):** the database carries the `001`
+baseline and nothing else. 002, 003, 004, and 005 are all unapplied. `001`
+itself re-verified with zero drift — every column, type, NOT NULL, default,
+PK and FK still matches. One object is live but absent from `001`: the
+`public.rls_auto_enable` function (`/rpc/rls_auto_enable`); see `001`'s header
+for the query to capture it.
 
 ## Active decisions
 
